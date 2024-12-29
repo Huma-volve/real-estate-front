@@ -1,40 +1,66 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import NotFound from "./UI/errors/NotFound";
 import ErrorElement from "./UI/errors/ErrorElement";
-
+import NotAuthorized from "./UI/errors/NotAuthorized";
+import ProtectedRoute from "./navigation/ProtectedRoute";
+import RoleProtectedRoute from "./navigation/RoleProtectedRoute";
 
 export default function App() {
   const routes = createBrowserRouter([
     {
       path: "/",
-     
       children: [
         // { index: true, element: <Home /> },
+        // { path: "login", element: <Login /> },
+        // { path: "register", element: <Register /> },
       ],
       errorElement: <ErrorElement />,
     },
-    // { path: "/login", element: <Login /> },
-    // { path: "/register", element: <Register /> },
     {
       path: "/client",
-      // element: <ClientDashboard />,
+      element: (
+        <ProtectedRoute>
+          <RoleProtectedRoute allowedRoles={["client"]}>
+            {/* <ClientDashboard /> */}
+          </RoleProtectedRoute>
+        </ProtectedRoute>
+      ),
       errorElement: <ErrorElement />,
     },
     {
       path: "/company",
-      // element: <CompanyDashboard />,
+      element: (
+        <ProtectedRoute>
+          <RoleProtectedRoute allowedRoles={["company"]}>
+            {/* <CompanyDashboard /> */}
+          </RoleProtectedRoute>
+        </ProtectedRoute>
+      ),
       errorElement: <ErrorElement />,
     },
     {
       path: "/reviewer",
-      // element: <ReviewerDashboard />,
+      element: (
+        <ProtectedRoute>
+          <RoleProtectedRoute allowedRoles={["reviewer"]}>
+            {/* <ReviewerDashboard /> */}
+          </RoleProtectedRoute>
+        </ProtectedRoute>
+      ),
       errorElement: <ErrorElement />,
     },
     {
       path: "/inspector",
-      // element: <InspectorDashboard />,
+      element: (
+        <ProtectedRoute>
+          <RoleProtectedRoute allowedRoles={["inspector"]}>
+            {/* <InspectorDashboard /> */}
+          </RoleProtectedRoute>
+        </ProtectedRoute>
+      ),
       errorElement: <ErrorElement />,
     },
+    { path: "/not-authorized", element: <NotAuthorized /> },
     { path: "*", element: <NotFound /> },
   ]);
 
