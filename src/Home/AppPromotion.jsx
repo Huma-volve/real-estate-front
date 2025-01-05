@@ -1,9 +1,11 @@
 const AppPromotion = () => {
   return (
+
     <div
       id="help"
       className="flex flex-col items-center justify-center min-h-screen py-8 px-4 sm:px-6 lg:px-8"
     >
+
       {/* Content Wrapper */}
       <div className="relative w-[90%] h-[400px] mx-auto rounded-lg shadow-lg p-6 bg-gradient-to-b from-[#F7FBF9] to-[rgba(206,170,135,1)]">
         {/* Phone Image */}

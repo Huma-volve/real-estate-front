@@ -14,3 +14,13 @@
     color: #C29062;
 }
 
+
+
+@layer components {
+  .inpute-main{
+    @apply w-full border rounded-xl px-6 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary 
+  } ;
+  .btn-main{
+    @apply  w-full bg-primary text-white rounded-full px-6 py-2 
+  }
+}

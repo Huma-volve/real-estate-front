@@ -1,8 +1,10 @@
-import { FaPhoneAlt, FaFax, FaEnvelope } from "react-icons/fa"; // Importing icons from react-icons
+
+import { FaPhoneAlt, FaFax, FaEnvelope } from "react-icons/fa"; 
 import { FiPhoneCall } from "react-icons/fi";
 import { MdOutlineFax } from "react-icons/md";
 import { FaEnvelopeOpenText } from "react-icons/fa6";
 import { useState } from "react";
+
 
 const ContactUs = () => {
   const [email, setEmail] = useState("");
@@ -47,10 +49,12 @@ const ContactUs = () => {
   };
 
   return (
+
     <div
       id="contact"
       className="flex flex-col md:flex-row items-center md:items-start md:justify-between px-4 py-8 md:px-16"
     >
+
       <div className="w-full md:w-1/2 mt-8 md:mt-0 flex justify-center">
         <img
           src="./photos/map.png"
@@ -116,6 +120,8 @@ const ContactUs = () => {
               className="w-full border border-gray-300 p-2 rounded focus:outline-none focus:ring focus:ring-[rgba(194,144,98,1)] text-left"
             />
           </div>
+
+      
         </div>
 
         <button
