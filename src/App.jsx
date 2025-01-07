@@ -16,6 +16,7 @@ import InspectorRegister from "./Auth/components/InspectorRegister";
 import PersonCustomerRegisteration from "./Auth/components/PersonCustomerRegisteration";
 import CompanyCustomerRegisteration from "./Auth/components/CompanyCustomerRegisteration";
 import EvaluationCompanyRegister from "./Auth/components/EvaluationCompanyRegister";
+import { Toaster } from "react-hot-toast";
 
 export default function App() {
   const routes = createBrowserRouter([
@@ -71,5 +72,10 @@ export default function App() {
     { path: "*", element: <NotFound /> },
   ]);
 
-  return <RouterProvider router={routes} />;
+  return<>
+  <Toaster/>
+  <RouterProvider router={routes} />;
+  </>
+  
+  
 }

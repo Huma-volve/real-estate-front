@@ -15,13 +15,16 @@
     "flowbite": "^2.5.2",
     "flowbite-react": "^0.10.2",
     "leaflet": "^1.9.4",
-    "ol": "^10.3.1",
+    "formik": "^2.4.6",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.54.2",
+    "react-hot-toast": "^2.5.1",
     "react-icons": "^5.4.0",
     "react-leaflet": "^4.2.1",
-    "react-router-dom": "^7.1.1"
+    "react-router-dom": "^7.1.1",
+    "yup": "^1.6.1"
+
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
