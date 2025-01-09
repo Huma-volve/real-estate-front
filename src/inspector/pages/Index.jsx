@@ -15,11 +15,11 @@ function InspectorIndex() {
   const sidebarTabs = [
     { label: "الرئيسية", link: "", icon: <FaHome /> },
     { label: "طلبات", link: "requests", icon: <FaRegBuilding /> },
-    { label: "رصيدي", link: "/projects", icon: <FaProjectDiagram /> },
-    { label: "المدفوعات", link: "/payments", icon: <FaCreditCard /> },
-    { label: "شروط وأحكام", link: "/terms", icon: <FaFileContract /> },
-    { label: "الإعدادات", link: "/settings", icon: <FaCog /> },
-    { label: "تسجيل الخروج", link: "/logout", icon: <FaSignOutAlt /> },
+    { label: "رصيدي", link: "account", icon: <FaProjectDiagram /> },
+    { label: "المدفوعات", link: "payments", icon: <FaCreditCard /> },
+    { label: "شروط وأحكام", link: "terms", icon: <FaFileContract /> },
+    { label: "الإعدادات", link: "settings", icon: <FaCog /> },
+    { label: "تسجيل الخروج", link: "logout", icon: <FaSignOutAlt /> },
   ];
 
   return (

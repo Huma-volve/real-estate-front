@@ -2,12 +2,15 @@ import ProtectedRoute from "../../navigation/ProtectedRoute";
 // import RoleProtectedRoute from "../../navigation/RoleProtectedRoute";
 import ErrorElement from "../../UI/errors/ErrorElement";
 import Index from "../pages/Index";
-// import Terms from "../pages/Terms";
+import Terms from "../pages/Terms";
 
 // import Logout from "../pages/Logout";
 import Requests from "../pages/Requests";
 
 import Inspector from "../pages/Inspector";
+import Acount from "../pages/Acount";
+import Payment from "../pages/Payment";
+import Setting from "../pages/Setting";
 
 const InspectorRoute = {
   path: "/inspector",
@@ -31,16 +34,17 @@ const InspectorRoute = {
     //   ],
     // },
     { path: "requests", element: <Requests /> },
-    // {
-    //   path: "payment",
+    {
+      path: "payments", element: <Payment />
     //   children: [
     //     { index: true, element: <Payment /> },
     //     { path: "payment-details", element: <PaymentDetails /> },
     //     { path: "payment-data", element: <PaymentData /> },
     //   ],
-    // },
-    // { path: "terms", element: <Terms /> },
-    // { path: "settings", element: <ClientProfile /> },
+    },
+    { path: "terms", element: <Terms /> },
+    { path: "account", element: <Acount /> },
+    { path: "settings", element: <Setting /> },
     // { path: "logout", element: <Logout /> },
   ],
 };
