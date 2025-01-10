@@ -6,11 +6,14 @@ import toast from 'react-hot-toast';
 
 import getAllComments from '../../CompanyApi/Comments/getAllComments';
 import creatComments from '../../CompanyApi/Comments/CreateComment';
+import { useParams } from 'react-router-dom';
 
 export default function Comments() {
   const [comments, setComments] = useState([]);
-  const projectId = 9; // ID of the project
-
+ 
+  const {id :projectId} = useParams()
+  
+  
   useEffect(() => {
     // Fetch data from API
     const fetchAllComments = async () => {

@@ -15,9 +15,11 @@ import TeamCard from "../Pages/Team/Team";
 import TeamReport from "../Pages/Team/TeamReport";
 import TermsAndCondattions from "../Pages/TermsAndCondation/TermsAndCondattions";
 import PreviwerReport from "../Pages/Reports/PreviwerReport";
-import Profile from "../Pages/Profile/Profile";
+
 import CompanyReport from "../Pages/Reports/CompanyReport";
 import Comments from "../Pages/Comments/Comments";
+import ReviewerProfile from "../Pages/Profile/ReviewerProfile";
+import InspectorProfile from "../Pages/Profile/InspectorProfile";
 
 
 
@@ -41,20 +43,20 @@ const compantRoute = {
       {index:true,element:<CompanyHome/>},
       {path:"projects",element:<CompanyHome/>},
       {path:"TeamReport",element:<TeamReport/>},
-      {path:"details",element:<Details/>},
+      {path:"details/:id",element:<Details/>},
       {path:"chooseTeam",element:<ChooseTeam/>},
       {path:"previwerReport",element:<PreviwerReport/>},
       {path:"companyReport",element:<CompanyReport/>},
-
-      {path:"profile",element:<Profile/>},
-      {path:"comments",element:<Comments/>},
+      {path:"reviewerprofile/:id",element:<ReviewerProfile/>},  
+      {path:"inspectorprofile/:id",element:<InspectorProfile/>},   
+      {path:"comments/:id",element:<Comments/>},
       
       
     ]},
     {path:"mybalance" ,element:<Mybalance/>},
     {path:"",element:<TeamCard/>},
     {path:"paid",element:<Paid/>},
-    {path:"logout",element:<LogOut/>},
+    
     
     
     ,

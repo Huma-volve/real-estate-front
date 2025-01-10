@@ -21,7 +21,7 @@ function Index() {
     { label: "المدفوعات", link: "paid", icon: <FaCreditCard /> },
     { label: "شروط وأحكام", link: "terms", icon: <FaFileContract /> },
     { label: "الإعدادات", link: "settings", icon: <FaCog /> },
-    { label: "تسجيل الخروج", link: "logout", icon: <FaSignOutAlt /> },
+   
   ];
 
   return (

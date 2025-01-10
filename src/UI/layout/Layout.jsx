@@ -1,8 +1,12 @@
 import { AiFillBell } from "react-icons/ai";
 import { Link } from "react-router-dom";
 import Notification from "../Notification";
+import { useState } from "react";
+import { FaSignOutAlt } from "react-icons/fa";
+import LogOut from "../../Company/Pages/LogOut/LogOut";
 
 const Layout = ({ children, sidebarTabs }) => {
+  const [logout,setlogout] = useState(false)
   return (
     <div className="min-h-screen flex flex-col ">
       {/* Navbar */}
@@ -52,6 +56,7 @@ const Layout = ({ children, sidebarTabs }) => {
           </h2>
           <ul className="space-y-4">
             {sidebarTabs.map((tab) => (
+            
               <li key={tab.label}>
                 <Link
                   to={tab.link}
@@ -65,7 +70,23 @@ const Layout = ({ children, sidebarTabs }) => {
                   </div>
                 </Link>
               </li>
+             
+             
+
             ))}
+
+<li>
+              <button
+                className="flex justify-start items-center gap-3 text-gray-700 hover:text-gray-900 hover:bg-gray-100 px-3 py-2 rounded-md w-full"
+                onClick={() => setlogout(true)}
+              >
+                <FaSignOutAlt className="text-[rgba(194,144,98,1)] text-xl" />
+                <span className="text-right hover:text-[rgba(194,144,98,1)]">
+                  تسجيل الخروج
+                </span>
+              </button>
+            </li>
+             {logout && <LogOut onCancel={() => setlogout(false)}/>}
           </ul>
         </aside>
 
