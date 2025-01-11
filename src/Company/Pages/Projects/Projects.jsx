@@ -5,9 +5,8 @@ import { Link, NavLink, Outlet } from 'react-router-dom'
 
 export default function Projects() {
     const navDetails =[
-        {id:1,name:"المشاريع",link:"/company/projects",icon:<IoIosArrowBack />   },
+        {id:1,name:"المشاريع",link:"/company/projects",icon:<IoIosArrowBack />},
         {id:2,name:"عقارات",link:"/company/projects" ,icon:<IoIosArrowBack />},
-        {id:3,name:"تفاصيل",link:"/company/projects/details",icon:<IoIosArrowBack />},
         {id:4,name:"اختيا فريق",link:"/company/projects/chooseTeam",icon:<IoIosArrowBack />},
         {id:5,name:"تقارير الفريق",link:"/company/projects/TeamReport",icon:<IoIosArrowBack />},
         {id:6,name:"تقرير المعاين",link:"/company/projects/previwerReport",icon:<IoIosArrowBack />},
