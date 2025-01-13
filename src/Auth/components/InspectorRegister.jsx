@@ -7,9 +7,18 @@ import {
   BsEye,
   BsEyeSlash,
 } from "react-icons/bs";
-import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
+import {
+  FaArrowLeft,
+  FaArrowRight,
+  FaPlus,
+  FaRegAddressCard,
+} from "react-icons/fa";
 import { FaLocationDot } from "react-icons/fa6";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import useFetchAreasFromCities from "../../hooks/useFetchAreasFromCities";
+import useFetchCities from "../../hooks/useFetchCities";
+import fetchInspectorRegister from "../authApi/fetchInspectorRegister";
+import toast from "react-hot-toast";
 
 function InspectorRegister() {
   const [username, setUsername] = useState("");
@@ -19,20 +28,36 @@ function InspectorRegister() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [city, setCity] = useState("");
-  const [region, setRegion] = useState("");
+  const [area1, setArea1] = useState("");
+  const [area2, setArea2] = useState("");
+  const [area3, setArea3] = useState("");
   const [nationalId, setNationalId] = useState(null);
-  const [certification, setCertification] = useState(null);
+  const [file, setFile] = useState(null);
+  const [certificate, setCertificate] = useState(null);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  const {
+    cities,
+    loading: loadingCities,
+    error: citiesError,
+  } = useFetchCities();
+
+  const {
+    areas,
+    loading: loadingAreas,
+    error: areasError,
+  } = useFetchAreasFromCities(city);
 
   const validateEmail = (email) => /\S+@\S+\.\S+/.test(email);
   const validatePhoneNumber = (number) => /^01[0-2,5]{1}[0-9]{8}$/.test(number); // Egyptian phone number pattern
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    let isValid = true;
     let newErrors = {};
 
     // Check for empty fields
@@ -41,9 +66,11 @@ function InspectorRegister() {
     if (!phoneNumber) newErrors.phoneNumber = "يرجى إدخال رقم الجوال.";
     if (!inspectionFee) newErrors.inspectionFee = "يرجى إدخال رسوم المعاينة.";
     if (!city) newErrors.city = "يرجى اختيار المدينة.";
-    if (!region) newErrors.region = "يرجى اختيار المنطقة.";
+    if (!area1) newErrors.area1 = "يرجى اختيار المنطقة الأولى.";
+    if (!area2) newErrors.area2 = "يرجى اختيار المنطقة الثانية.";
+    if (!area3) newErrors.area3 = "يرجى اختيار المنطقة الثالثة.";
     if (!nationalId) newErrors.nationalId = "يرجى تحميل بطاقة الهوية الوطنية.";
-    if (!certification) newErrors.certification = "يرجى تحميل شهادة الاعتماد.";
+    if (!file) newErrors.certification = "يرجى تحميل شهادة الاعتماد.";
     if (!password) newErrors.password = "يرجى إدخال كلمة المرور.";
     if (!confirmPassword)
       newErrors.confirmPassword = "يرجى إدخال تأكيد كلمة المرور.";
@@ -62,19 +89,33 @@ function InspectorRegister() {
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length === 0) {
-      const formData = {
-        username,
-        email,
-        phoneNumber,
-        inspectionFee,
-        city,
-        region,
-        nationalId,
-        certification,
-        password,
-        termsAccepted,
-      };
-      console.log(formData);
+      const formData = new FormData();
+      formData.append("username", username);
+      formData.append("email", email);
+      formData.append("phone", phoneNumber);
+      formData.append("inspection_fees", inspectionFee);
+      formData.append("national_id", nationalId);
+      formData.append("city_id", city);
+      formData.append("area_id_1", area1);
+      formData.append("area_id_2", area2);
+      formData.append("area_id_3", area3);
+      formData.append("password", password);
+      formData.append("password_confirmation", confirmPassword);
+      formData.append("terms_accepted", termsAccepted ? "1" : null);
+      formData.append("delegation", file);
+      formData.append("certificate", certificate);
+
+      setLoading(true);
+
+      try {
+        const result = await fetchInspectorRegister(formData);
+        toast.success("تم تسجيل الحساب بنجاح، الآن يمكنك تسجيل الدخول");
+        navigate("/login");
+      } catch (error) {
+        toast.error("فشل التسجيل، يرجى المحاولة مرة أخرى.");
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -133,10 +174,20 @@ function InspectorRegister() {
                 icon: <BsPerson className="text-gray-400 mx-2" size={24} />,
                 error: errors.inspectionFee,
               },
+              {
+                type: "text",
+                placeholder: "رقم الهوية الوطنية ",
+                value: nationalId,
+                onChange: setNationalId,
+                icon: (
+                  <FaRegAddressCard className="text-gray-400 mx-2" size={24} />
+                ),
+                error: errors.nationalId,
+              },
             ].map(
               ({ type, placeholder, value, onChange, icon, error }, idx) => (
                 <div
-                  className="w-full mb-4 flex flex-col items-center "
+                  className="w-full mb-4 flex flex-col items-center"
                   key={idx}
                 >
                   <div className="flex items-center border rounded-full w-[65%]">
@@ -155,6 +206,98 @@ function InspectorRegister() {
                 </div>
               )
             )}
+
+            {/* City and Area Dropdowns */}
+            <div className="w-full mb-4 flex flex-col items-center">
+              <div className="flex items-center border rounded-full w-[65%]">
+                <FaLocationDot className="text-gray-400 mx-2" size={24} />
+                <select
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  className={`${inputClasses} text-gray-400`}
+                >
+                  <option className="text-gray-400" value="" disabled>
+                    اختار المدينة
+                  </option>
+                  {loadingCities ? (
+                    <option>Loading...</option>
+                  ) : citiesError ? (
+                    <option>Error loading cities</option>
+                  ) : (
+                    cities.map((city) => (
+                      <option
+                        key={city.id}
+                        value={city.id}
+                        className="text-black"
+                      >
+                        {city.name}
+                      </option>
+                    ))
+                  )}
+                </select>
+              </div>
+              {errors.city && (
+                <p className="text-red-500 text-sm mt-1">{errors.city}</p>
+              )}
+            </div>
+
+            {/* Area Dropdowns Side by Side */}
+            <div className="w-full mb-4 flex flex-wrap justify-between px-8">
+              {[
+                {
+                  placeholder: "اختيار المنطقة الأولى",
+                  value: area1,
+                  onChange: setArea1,
+                  error: errors.area1,
+                },
+                {
+                  placeholder: "اختيار المنطقة الثانية",
+                  value: area2,
+                  onChange: setArea2,
+                  error: errors.area2,
+                },
+                {
+                  placeholder: "اختيار المنطقة الثالثة",
+                  value: area3,
+                  onChange: setArea3,
+                  error: errors.area3,
+                },
+              ].map(({ placeholder, value, onChange, error }, idx) => (
+                <div
+                  className="flex items-center border rounded-full w-[32%] mb-2"
+                  key={idx}
+                >
+                  <FaLocationDot className="text-gray-400 mx-2" size={24} />
+                  <select
+                    value={value}
+                    onChange={(e) => onChange(e.target.value)}
+                    className={`${inputClasses} text-gray-400`}
+                  >
+                    <option className="text-gray-400" value="" disabled>
+                      {placeholder}
+                    </option>
+                    {loadingAreas ? (
+                      <option>Loading...</option>
+                    ) : areasError ? (
+                      <option>Error loading areas</option>
+                    ) : (
+                      areas.map((area) => (
+                        <option
+                          key={area.id}
+                          value={area.id}
+                          className="text-black"
+                        >
+                          {area.name}
+                        </option>
+                      ))
+                    )}
+                  </select>
+                  {error && (
+                    <p className="text-red-500 text-sm mt-1 w-full">{error}</p>
+                  )}
+                </div>
+              ))}
+            </div>
 
             {/* Password Fields with Toggle */}
             {[
@@ -185,7 +328,7 @@ function InspectorRegister() {
                     <input
                       type={show ? "text" : "password"}
                       placeholder={placeholder}
-                      className={`${inputClasses}`} // Added padding to make space for the icon
+                      className={`${inputClasses}`}
                       value={value}
                       onChange={(e) => onChange(e.target.value)}
                     />
@@ -207,114 +350,75 @@ function InspectorRegister() {
               )
             )}
 
-            {/* Dropdowns */}
-            {[
-              {
-                placeholder: "اختر المدينة",
-                value: city,
-                onChange: setCity,
-                options: ["Cairo", "Alexandria", "Giza"],
-                error: errors.city,
-                icon: (
-                  <FaLocationDot className="text-gray-400 mx-2" size={24} />
-                ),
-              },
-              {
-                placeholder: "اختر المنطقة",
-                value: region,
-                onChange: setRegion,
-                options: ["Region 1", "Region 2", "Region 3"],
-                error: errors.region,
-                icon: (
-                  <FaLocationDot className="text-gray-400 mx-2" size={24} />
-                ),
-              },
-            ].map(
-              ({ placeholder, value, onChange, options, error, icon }, idx) => (
-                <div
-                  className="w-full mb-4 flex flex-col items-center text-gray-400 "
-                  key={idx}
-                >
-                  <div className="flex items-center border rounded-full w-[65%]">
-                    {icon}
-                    <select
-                      className={inputClasses}
-                      value={value}
-                      onChange={(e) => onChange(e.target.value)}
-                    >
-                      <option value="" disabled>
-                        {placeholder}
-                      </option>
-                      {options.map((option, index) => (
-                        <option key={index} value={option}>
-                          {option}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  {error && (
-                    <p className="text-red-500 text-sm mt-1">{error}</p>
-                  )}
-                </div>
-              )
-            )}
-
-            {/* File Uploads */}
-            {[
-              {
-                label: "اضافة بطاقة الهوية الوطنية",
-                value: nationalId,
-                onChange: setNationalId,
-                error: errors.nationalId,
-              },
-              {
-                label: "اضافة شهادة اعتماد",
-                value: certification,
-                onChange: setCertification,
-                error: errors.certification,
-              },
-            ].map(({ label, value, onChange, error }, idx) => (
-              <div
-                className="w-full mb-4 flex flex-col items-center "
-                key={idx}
-              >
-                <label className="flex items-center justify-between w-[65%] p-4 border rounded-full cursor-pointer">
-                  <span className="text-gray-400">{label}</span>
-                  <input
-                    type="file"
-                    className="hidden"
-                    onChange={(e) => onChange(e.target.files[0])}
-                  />
-                </label>
-                {value && (
-                  <p className="text-gray-600 text-sm mt-1">{value.name}</p>
-                )}
-                {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
-              </div>
-            ))}
-
-            {/* Checkbox */}
-            <div className="flex items-center mb-4">
-              <input
-                type="checkbox"
-                className="mr-2"
-                checked={termsAccepted}
-                onChange={(e) => setTermsAccepted(e.target.checked)}
-              />
-              <span>قبول الشروط والأحكام</span>
+            {/* File Upload */}
+            <div className="w-full mb-4 flex flex-col items-center">
+              <label className="flex items-center justify-center border rounded-xl w-[40%] py-2 cursor-pointer bg-[#D1E8E2] text-[#000]">
+                <span>اضافة بطاقة الهوية الوطنية</span>
+                <FaPlus className="mr-2" />
+                <input
+                  type="file"
+                  className="hidden"
+                  onChange={(e) => setFile(e.target.files[0])}
+                />
+              </label>
+              {file && (
+                <p className="text-gray-600 text-sm mt-1">{file.name}</p>
+              )}
+              {errors.file && (
+                <p className="text-red-500 text-sm mt-1">{errors.file}</p>
+              )}
             </div>
-            {errors.termsAccepted && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.termsAccepted}
-              </p>
-            )}
 
-            <button
-              type="submit"
-              className="bg-[#C29062] text-white py-2 px-8 rounded-full w-[65%]"
-            >
-              تسجيل دخول
-            </button>
+            <div className="w-full mb-4 flex flex-col items-center">
+              <label className="flex items-center justify-center border rounded-xl w-[40%] py-2 cursor-pointer bg-[#D1E8E2] text-[#000]">
+                <span>إضافة شهادة اعتماد</span>
+                <FaPlus className="mr-2" />
+                <input
+                  type="file"
+                  className="hidden"
+                  onChange={(e) => setCertificate(e.target.files[0])}
+                />
+              </label>
+              {certificate && (
+                <p className="text-gray-600 text-sm mt-1">{certificate.name}</p>
+              )}
+              {errors.file && (
+                <p className="text-red-500 text-sm mt-1">{certificate.file}</p>
+              )}
+            </div>
+
+            {/* Terms and Conditions */}
+            <div className="w-full mb-4 flex flex-col items-center">
+              <label className="flex items-center justify-center w-[65%] text-gray-500">
+                <input
+                  type="checkbox"
+                  className="mr-2"
+                  checked={termsAccepted}
+                  onChange={() => setTermsAccepted(!termsAccepted)}
+                />
+                <span>
+                  أوافق على{" "}
+                  <Link to="/terms" className="text-[#C29062]">
+                    الشروط والأحكام
+                  </Link>
+                </span>
+              </label>
+              {errors.termsAccepted && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.termsAccepted}
+                </p>
+              )}
+            </div>
+
+            {/* Submit Button */}
+            <div className="w-full mb-8 flex items-center justify-center">
+              <button
+                type="submit"
+                className="w-[65%] p-4 bg-[#C29062] text-white rounded-full font-bold"
+              >
+                {loading ? "جاري التسجيل..." : "تسجيل"}
+              </button>
+            </div>
           </form>
         </div>
       </div>

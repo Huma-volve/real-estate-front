@@ -3,6 +3,9 @@ import { BsEnvelope } from "react-icons/bs";
 import { FaArrowLeft, FaArrowRight, FaEye, FaEyeSlash } from "react-icons/fa";
 import { SlLock } from "react-icons/sl";
 import { Link } from "react-router-dom";
+import fetchlogin from "../authApi/fetchLogin";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-hot-toast";
 
 function Login() {
   const [passwordVisible, setPasswordVisible] = useState(false);
@@ -10,9 +13,12 @@ function Login() {
   const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     let valid = true;
+
     if (!/\S+@\S+\.\S+/.test(email)) {
       setEmailError("يرجى إدخال بريد إلكتروني صالح");
       valid = false;
@@ -28,8 +34,18 @@ function Login() {
     }
 
     if (valid) {
-      console.log("Email:", email);
-      console.log("Password:", password);
+      setLoading(true); // Disable the button
+
+      try {
+        // Call fetchlogin with the email and password
+        const result = await fetchlogin({ email, password });
+        toast.success("تم تسجيل الدخول بنجاح!"); // Show success toast
+        navigate("/"); // Navigate to the home page
+      } catch (error) {
+        toast.error("فشل تسجيل الدخول، يرجى المحاولة مرة أخرى."); // Show error toast
+      } finally {
+        setLoading(false); // Enable the button
+      }
     }
   };
 
@@ -89,8 +105,9 @@ function Login() {
         <button
           className="bg-[#C29062] text-white py-2 px-8 rounded-full w-full"
           onClick={handleLogin}
+          disabled={loading}
         >
-          تسجيل الدخول
+          {loading ? "جاري تسجيل الدخول..." : "تسجيل الدخول"}
         </button>
         <a href="#" className="mt-4 mx-auto">
           هل نسيت كلمة المرور؟

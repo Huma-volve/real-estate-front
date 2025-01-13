@@ -10,6 +10,10 @@ import {
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import { FaLocationDot } from "react-icons/fa6";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-hot-toast";
+import fetchCustomerRegister from "../../Auth/authApi/fetchCustomerRegister";
+import useFetchCities from "../../hooks/useFetchCities";
 
 function PersonCustomerRegisteration() {
   const [username, setUsername] = useState("");
@@ -22,11 +26,18 @@ function PersonCustomerRegisteration() {
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const {
+    cities,
+    loading: loadingCities,
+    error: citiesError,
+  } = useFetchCities();
+  const navigate = useNavigate();
 
   const validateEmail = (email) => /\S+@\S+\.\S+/.test(email);
   const validatePhoneNumber = (number) => /^01[0-2,5]{1}[0-9]{8}$/.test(number); // Egyptian phone number pattern
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     let isValid = true;
     let newErrors = {};
@@ -48,7 +59,6 @@ function PersonCustomerRegisteration() {
       newErrors.city = "يرجى إدخال المدينة.";
       isValid = false;
     }
-
     if (!password) {
       newErrors.password = "يرجى إدخال كلمة المرور.";
       isValid = false;
@@ -91,9 +101,21 @@ function PersonCustomerRegisteration() {
         phoneNumber,
         city,
         password,
+        confirmPassword,
         termsAccepted,
       };
-      console.log(formData);
+
+      setLoading(true); // Disable the button while submitting
+
+      try {
+        const result = await fetchCustomerRegister(formData);
+        toast.success(" تم تسجيل الحساب بنجاح ،الان يمكنك تسجيل الدخول"); // Show success toast
+        navigate("/login"); // Navigate to the home page
+      } catch (error) {
+        toast.error("فشل التسجيل، يرجى المحاولة مرة أخرى."); // Show error toast
+      } finally {
+        setLoading(false); // Re-enable the button
+      }
     }
   };
 
@@ -143,16 +165,6 @@ function PersonCustomerRegisteration() {
                 icon: <BsPhone className="text-gray-400 mx-2" size={24} />,
                 error: errors.phoneNumber,
               },
-              {
-                type: "text",
-                placeholder: "اختار المدينة",
-                value: city,
-                onChange: setCity,
-                icon: (
-                  <FaLocationDot className="text-gray-400 mx-2" size={24} />
-                ),
-                error: errors.city,
-              },
             ].map(
               ({ type, placeholder, value, onChange, icon, error }, idx) => (
                 <div
@@ -175,6 +187,39 @@ function PersonCustomerRegisteration() {
                 </div>
               )
             )}
+            {/* Select Input for Cities */}
+            <div className="w-full mb-4 flex flex-col items-center">
+              <div className="flex items-center border rounded-full w-[65%] ">
+                <FaLocationDot className="text-gray-400 mx-2" size={24} />
+                <select
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  className={`${inputClasses} text-gray-400`}
+                >
+                  <option className="text-gray-400" value="" disabled>
+                    اختار المدينة
+                  </option>
+                  {loadingCities ? (
+                    <option>Loading...</option>
+                  ) : citiesError ? (
+                    <option>Error loading cities</option>
+                  ) : (
+                    cities.map((city) => (
+                      <option
+                        key={city.id}
+                        value={city.id}
+                        className="text-black"
+                      >
+                        {city.name}
+                      </option>
+                    ))
+                  )}
+                </select>
+              </div>
+              {errors.city && (
+                <p className="text-red-500 text-sm mt-1">{errors.city}</p>
+              )}
+            </div>
 
             {/* Password Fields with Toggle */}
             {[
@@ -245,8 +290,9 @@ function PersonCustomerRegisteration() {
             <button
               type="submit"
               className="bg-[#C29062] text-white py-2 px-8 rounded-full w-[65%]"
+              disabled={loading}
             >
-              تسجيل دخول
+              {loading ? "جاري التسجيل..." : "تسجيل"}
             </button>
           </form>
         </div>

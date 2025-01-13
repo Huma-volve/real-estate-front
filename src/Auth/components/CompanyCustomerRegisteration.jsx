@@ -9,7 +9,10 @@ import {
 } from "react-icons/bs";
 import { FaArrowLeft, FaArrowRight, FaPlus } from "react-icons/fa";
 import { FaLocationDot } from "react-icons/fa6";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import useFetchCities from "../../hooks/useFetchCities";
+import fetchCustomerCompanyRegister from "../authApi/fetchCustomerCompanyRegister";
+import toast from "react-hot-toast";
 
 function CompanyCustomerRegisteration() {
   const [username, setUsername] = useState("");
@@ -23,83 +26,68 @@ function CompanyCustomerRegisteration() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [file, setFile] = useState(null);
-
+  const [loading, setLoading] = useState(false);
+  const {
+    cities,
+    loading: loadingCities,
+    error: citiesError,
+  } = useFetchCities();
+  const navigate = useNavigate();
   const validateEmail = (email) => /\S+@\S+\.\S+/.test(email);
   const validatePhoneNumber = (number) => /^01[0-2,5]{1}[0-9]{8}$/.test(number); // Egyptian phone number pattern
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    let isValid = true;
+
     let newErrors = {};
 
-    // Check for empty fields
-    if (!username) {
-      newErrors.username = "يرجى إدخال اسم المستخدم.";
-      isValid = false;
-    }
-    if (!email) {
-      newErrors.email = "يرجى إدخال البريد الإلكتروني.";
-      isValid = false;
-    }
-    if (!phoneNumber) {
-      newErrors.phoneNumber = "يرجى إدخال رقم الجوال.";
-      isValid = false;
-    }
-    if (!city) {
-      newErrors.city = "يرجى إدخال المدينة.";
-      isValid = false;
-    }
-
-    if (!password) {
-      newErrors.password = "يرجى إدخال كلمة المرور.";
-      isValid = false;
-    }
-    if (!confirmPassword) {
+    // Validate fields
+    if (!username) newErrors.username = "يرجى إدخال اسم المستخدم.";
+    if (!email) newErrors.email = "يرجى إدخال البريد الإلكتروني.";
+    if (!phoneNumber) newErrors.phoneNumber = "يرجى إدخال رقم الجوال.";
+    if (!city) newErrors.city = "يرجى إدخال المدينة.";
+    if (!password) newErrors.password = "يرجى إدخال كلمة المرور.";
+    if (!confirmPassword)
       newErrors.confirmPassword = "يرجى إدخال تأكيد كلمة المرور.";
-      isValid = false;
-    }
-    if (!termsAccepted) {
-      newErrors.termsAccepted = "يجب قبول الشروط والأحكام.";
-      isValid = false;
-    }
-    if (!file) {
-      newErrors.file = "يرجى تحميل الملف.";
-      isValid = false;
-    }
+    if (!termsAccepted) newErrors.termsAccepted = "يجب قبول الشروط والأحكام.";
+    if (!file) newErrors.file = "يرجى تحميل الملف.";
 
-    // Validate email and phone number formats
-    if (email && !validateEmail(email)) {
+    // Email and phone validation
+    if (email && !validateEmail(email))
       newErrors.email = "يرجى إدخال بريد إلكتروني صحيح.";
-      isValid = false;
-    }
-    if (phoneNumber && !validatePhoneNumber(phoneNumber)) {
+    if (phoneNumber && !validatePhoneNumber(phoneNumber))
       newErrors.phoneNumber = "يرجى إدخال رقم جوال صحيح.";
-      isValid = false;
-    }
 
-    // Password length and matching check
-    if (password && password.length < 6) {
+    // Password validation
+    if (password && password.length < 6)
       newErrors.password = "يجب أن تحتوي كلمة المرور على 6 أحرف على الأقل.";
-      isValid = false;
-    }
-    if (password && password !== confirmPassword) {
+    if (password && password !== confirmPassword)
       newErrors.confirmPassword = "كلمة المرور وتأكيد كلمة المرور لا يتطابقان.";
-      isValid = false;
-    }
 
     setErrors(newErrors);
 
-    if (isValid) {
-      const formData = {
-        username,
-        email,
-        phoneNumber,
-        city,
-        password,
-        termsAccepted,
-        file,
-      };
-      console.log(formData);
+    if (Object.keys(newErrors).length === 0) {
+      const formData = new FormData();
+      formData.append("username", username);
+      formData.append("email", email);
+      formData.append("phone", phoneNumber);
+      formData.append("city_id", city);
+      formData.append("password", password);
+      formData.append("password_confirmation", confirmPassword);
+      formData.append("terms_accepted", termsAccepted ? "1" : null);
+      formData.append("delegation", file);
+
+      setLoading(true);
+
+      try {
+        const result = await fetchCustomerCompanyRegister(formData);
+        toast.success("تم تسجيل الحساب بنجاح، الآن يمكنك تسجيل الدخول");
+        navigate("/login");
+      } catch (error) {
+        toast.error("فشل التسجيل، يرجى المحاولة مرة أخرى.");
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -149,16 +137,6 @@ function CompanyCustomerRegisteration() {
                 icon: <BsPhone className="text-gray-400 mx-2" size={24} />,
                 error: errors.phoneNumber,
               },
-              {
-                type: "text",
-                placeholder: "اختار المدينة",
-                value: city,
-                onChange: setCity,
-                icon: (
-                  <FaLocationDot className="text-gray-400 mx-2" size={24} />
-                ),
-                error: errors.city,
-              },
             ].map(
               ({ type, placeholder, value, onChange, icon, error }, idx) => (
                 <div
@@ -181,6 +159,40 @@ function CompanyCustomerRegisteration() {
                 </div>
               )
             )}
+
+            {/* Select Input for Cities */}
+            <div className="w-full mb-4 flex flex-col items-center">
+              <div className="flex items-center border rounded-full w-[65%] ">
+                <FaLocationDot className="text-gray-400 mx-2" size={24} />
+                <select
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  className={`${inputClasses} text-gray-400`}
+                >
+                  <option className="text-gray-400" value="" disabled>
+                    اختار المدينة
+                  </option>
+                  {loadingCities ? (
+                    <option>Loading...</option>
+                  ) : citiesError ? (
+                    <option>Error loading cities</option>
+                  ) : (
+                    cities.map((city) => (
+                      <option
+                        key={city.id}
+                        value={city.id}
+                        className="text-black"
+                      >
+                        {city.name}
+                      </option>
+                    ))
+                  )}
+                </select>
+              </div>
+              {errors.city && (
+                <p className="text-red-500 text-sm mt-1">{errors.city}</p>
+              )}
+            </div>
 
             {/* Password Fields with Toggle */}
             {[
@@ -270,7 +282,7 @@ function CompanyCustomerRegisteration() {
               type="submit"
               className="bg-[#C29062] text-white py-2 px-8 rounded-full w-[65%]"
             >
-              تسجيل دخول
+              {loading ? "جاري التسجيل..." : "تسجيل"}
             </button>
           </form>
         </div>
